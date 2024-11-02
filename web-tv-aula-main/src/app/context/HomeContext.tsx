@@ -45,7 +45,7 @@ const HomeContextProvider = ({ children }: ProviderProps) => {
 
     useEffect(() => {
         configVideo(videoIndex);
-    }, []);
+    }, [videoIndex]);
 
     const configVideo = (index: number) => {
         const currentIndex = index % videos.length;

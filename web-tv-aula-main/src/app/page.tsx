@@ -93,6 +93,7 @@ export default function Home() {
       <div className="w-[150px] h-[50vh] overflow-y-auto ml-4 flex flex-col items-center">
         {videos.map((video: Video, index) => (
           <button key={index} className="w-full mb-1" onClick={() => configVideo(index)}>
+            <h2>{video.description}</h2>
             <img className="w-full h-[100px]" src={video.imageURL} alt={`Thumbnail ${index}`} />
           </button>
         ))}
