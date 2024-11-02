@@ -72,22 +72,29 @@ const HomeContextProvider = ({ children }: ProviderProps) => {
                 setTotalTime(video.duration);
                 setCurrentTime(video.currentTime);
                 if (playing) video.play();
-
-                // Conectar o áudio do vídeo ao contexto de áudio
-                if (audioContextRef.current && !gainNodeRef.current) {
+    
+                // Verifica se já existe um audioContext e gainNode criados e os conecta ao novo vídeo
+                if (audioContextRef.current && gainNodeRef.current) {
+                    // Desconecta o nó de ganho anterior e cria uma nova fonte de áudio para o novo vídeo
+                    const source = audioContextRef.current.createMediaElementSource(video);
+                    source.connect(gainNodeRef.current).connect(audioContextRef.current.destination);
+                } else if (!audioContextRef.current) {
+                    // Cria o contexto de áudio e o nó de ganho, se ainda não foram criados
+                    audioContextRef.current = new AudioContext();
                     const gainNode = audioContextRef.current.createGain();
                     const source = audioContextRef.current.createMediaElementSource(video);
                     source.connect(gainNode).connect(audioContextRef.current.destination);
                     gainNodeRef.current = gainNode;
                 }
             };
-
+    
             video.ontimeupdate = () => setCurrentTime(video.currentTime);
             video.onended = () => configVideo(videoIndex + 1);
         }
-
         draw();
-    }, [videoURL, filterIndex]);
+    }, [videoURL, filterIndex, playing]);
+
+    
 
     const configVolume = (value: number) => {
         if (gainNodeRef.current) {
