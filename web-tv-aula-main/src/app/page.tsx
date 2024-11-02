@@ -70,13 +70,16 @@ export default function Home() {
           <span className="text-white">
             {formatTime(currentTime)} / {formatTime(totalTime)}
           </span>
+
           <div className="">
-            <button className="text-white mb-2 mr-2 items-center" onClick={playPause}>
-              {playing ? <FaPause /> : <FaPlay />}
-            </button>
-            <button onClick={configMuted} className="text-white mb-2 mr-2">
-              {muted ? <FaVolumeOff /> : <FaVolumeUp />}
-            </button>
+            <div className="flex items-center justify-center mb-2">
+              <button className="text-white mr-4 flex items-center justify-center text-4xl" onClick={playPause}>
+                {playing ? <FaPause /> : <FaPlay />}
+              </button>
+              <button onClick={configMuted} className="text-white flex items-center justify-center text-5xl">
+                {muted ? <FaVolumeOff /> : <FaVolumeUp />}
+              </button>
+            </div>
             <div>
               <h1 className="grid place-items-center italic text-white">Volume</h1>
               <input
@@ -90,6 +93,7 @@ export default function Home() {
               />
             </div>
           </div>
+
           <div className="flex items-center">
             {showFilter && (
               <select onChange={(e) => configFilter(Number(e.target.value))} defaultValue={0}>
