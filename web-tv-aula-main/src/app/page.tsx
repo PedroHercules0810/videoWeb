@@ -50,8 +50,11 @@ export default function Home() {
             value={currentTime}
             onChange={(e) => configCurrentTime(Number(e.target.value))}
           />
-          <div>
-            <button className="text-white mb-2 mr-2" onClick={playPause}>
+          <span className="text-white">
+            {formatTime(currentTime)} / {formatTime(totalTime)}
+          </span>
+          <div className="">
+            <button className="text-white mb-2 mr-2 items-center" onClick={playPause}>
               {playing ? <FaPause /> : <FaPlay />}
             </button>
             <button onClick={()=> configMuted()} className="text-white mb-2 mr-2">
@@ -62,7 +65,7 @@ export default function Home() {
              }
          </button>
          <div>
-                <h1 className="grid place-items-center italic">Volume</h1>
+                <h1 className="grid place-items-center italic text-white">Volume</h1>
                 <input
                   type="range"
                   min={0}
@@ -73,9 +76,6 @@ export default function Home() {
                 />
                 </div>
          </div>
-          <span className="text-white">
-            {formatTime(currentTime)} / {formatTime(totalTime)}
-          </span>
           <div className="flex items-center">
             <select onChange={(e) => configFilter(Number(e.target.value))} hidden={!showFilter}>
               <option selected value={0}>Sem filtro</option>
