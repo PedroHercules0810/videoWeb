@@ -40,18 +40,25 @@ const HomeContextProvider = ({ children }: ProviderProps) => {
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const [audioContext, setAudioContext] = useState<AudioContext | null>(null);
-    const [gainNode, setGainNode] = useState<GainNode | null>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const gainNodeRef = useRef<GainNode | null>(null);
 
     useEffect(() => {
         configVideo(videoIndex);
-    }, [videoIndex]);
+    }, []);
 
     const configVideo = (index: number) => {
         const currentIndex = index % videos.length;
         const currentVideo: Video = videos[currentIndex];
         setVideoURL(currentVideo.videoURL);
         setVideoIndex(currentIndex);
+
+        // Iniciar o contexto de áudio apenas uma vez
+        if (!audioContextRef.current) {
+            audioContextRef.current = new AudioContext();
+            const gainNode = audioContextRef.current.createGain();
+            gainNodeRef.current = gainNode;
+        }
     };
 
     const configFilter = (index: number) => {
@@ -66,14 +73,12 @@ const HomeContextProvider = ({ children }: ProviderProps) => {
                 setCurrentTime(video.currentTime);
                 if (playing) video.play();
 
-                if (!audioContext) {
-                    const audioCtx = new AudioContext();
-                    const gain = audioCtx.createGain();
-                    setAudioContext(audioCtx);
-                    setGainNode(gain);
-
-                    const source = audioCtx.createMediaElementSource(video);
-                    source.connect(gain).connect(audioCtx.destination);
+                // Conectar o áudio do vídeo ao contexto de áudio
+                if (audioContextRef.current && !gainNodeRef.current) {
+                    const gainNode = audioContextRef.current.createGain();
+                    const source = audioContextRef.current.createMediaElementSource(video);
+                    source.connect(gainNode).connect(audioContextRef.current.destination);
+                    gainNodeRef.current = gainNode;
                 }
             };
 
@@ -85,8 +90,8 @@ const HomeContextProvider = ({ children }: ProviderProps) => {
     }, [videoURL, filterIndex]);
 
     const configVolume = (value: number) => {
-        if (gainNode) {
-            gainNode.gain.value = value;
+        if (gainNodeRef.current) {
+            gainNodeRef.current.gain.value = value;
         } else {
             const video = videoRef.current;
             if (video) video.volume = value;
@@ -121,6 +126,10 @@ const HomeContextProvider = ({ children }: ProviderProps) => {
         if (playing) {
             video.pause();
         } else {
+            // Iniciar o contexto de áudio se estiver suspenso
+            if (audioContextRef.current && audioContextRef.current.state === "suspended") {
+                audioContextRef.current.resume();
+            }
             video.play();
             draw();
         }

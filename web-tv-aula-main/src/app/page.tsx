@@ -1,8 +1,8 @@
 'use client'
 
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { HomeContext } from "./context/HomeContext";
-import { FaPause, FaPlay, FaVolumeOff, FaVolumeUp} from "react-icons/fa";
+import { FaPause, FaPlay, FaVolumeOff, FaVolumeUp } from "react-icons/fa";
 import videos, { Video } from './data/video';
 
 export default function Home() {
@@ -25,6 +25,13 @@ export default function Home() {
     configVolume
   } = useContext(HomeContext);
 
+  // Sincronizar o estado de exibição de filtro com o vídeo/canvas
+  useEffect(() => {
+    if (showFilter) {
+      videoRef.current?.pause();
+    }
+  }, [showFilter, videoRef]);
+
   return (
     <main className="mx-auto w-[80%] mt-2 flex">
       {/* Container para o vídeo e controles */}
@@ -38,18 +45,28 @@ export default function Home() {
           <input
             className="
               w-full mb-2
+              appearance-none
               [&::-webkit-slider-runnable-track]:appearance-none
               [&::-webkit-slider-thumb]:appearance-none
               [&::-webkit-slider-runnable-track]:h-[10px]
-              [&::-webkit-slider-thumb]:h-[10px]
-              [&::-webkit-slider-thumb]:w-[10px]
-              [&::-webkit-slider-thumb]:bg-[#ff6e6e]"
+              [&::-webkit-slider-runnable-track]:bg-[#555555] // Cor do fundo do range
+              [&::-webkit-slider-thumb]:h-[14px]
+              [&::-webkit-slider-thumb]:w-[14px]
+              [&::-webkit-slider-thumb]:rounded-full
+              [&::-webkit-slider-thumb]:bg-[#97eb66]
+              [&::-webkit-slider-thumb]:border-2
+              [&::-webkit-slider-thumb]:border-[#65ad4f]
+              [&::-moz-range-progress]:bg-[#ff6e6e]
+              [&::-webkit-slider-runnable-track]:bg-gradient-to-r
+              from-[#ff7474] to-[#d4ff37] // Para mostrar o progresso"
+
             type="range"
             min="0"
             max={totalTime}
             value={currentTime}
             onChange={(e) => configCurrentTime(Number(e.target.value))}
           />
+
           <span className="text-white">
             {formatTime(currentTime)} / {formatTime(totalTime)}
           </span>
@@ -57,34 +74,33 @@ export default function Home() {
             <button className="text-white mb-2 mr-2 items-center" onClick={playPause}>
               {playing ? <FaPause /> : <FaPlay />}
             </button>
-            <button onClick={()=> configMuted()} className="text-white mb-2 mr-2">
-             {
-              (muted) ? 
-               (<FaVolumeOff />) : 
-               (<FaVolumeUp/>)
-             }
-         </button>
-         <div>
-                <h1 className="grid place-items-center italic text-white">Volume</h1>
-                <input
-                  type="range"
-                  min={0}
-                  max={1}
-                  step="0.01"
-                  value={volume}
-                  onChange={(e) => configVolume(Number(e.target.value))}
-                />
-                </div>
-         </div>
+            <button onClick={configMuted} className="text-white mb-2 mr-2">
+              {muted ? <FaVolumeOff /> : <FaVolumeUp />}
+            </button>
+            <div>
+              <h1 className="grid place-items-center italic text-white">Volume</h1>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step="0.01"
+                value={volume}
+                onChange={(e) => configVolume(Number(e.target.value))}
+                disabled={muted} // Desabilitar controle de volume quando mudo
+              />
+            </div>
+          </div>
           <div className="flex items-center">
-            <select onChange={(e) => configFilter(Number(e.target.value))} hidden={!showFilter}>
-              <option selected value={0}>Sem filtro</option>
-              <option value={1}>Verde</option>
-              <option value={2}>Azul</option>
-              <option value={3}>Vermelho</option>
-              <option value={4}>Preto e branco</option>
-              <option value={5}>Invertido</option>
-            </select>
+            {showFilter && (
+              <select onChange={(e) => configFilter(Number(e.target.value))} defaultValue={0}>
+                <option value={0}>Sem filtro</option>
+                <option value={1}>Verde</option>
+                <option value={2}>Azul</option>
+                <option value={3}>Vermelho</option>
+                <option value={4}>Preto e branco</option>
+                <option value={5}>Invertido</option>
+              </select>
+            )}
           </div>
         </div>
       </div>
