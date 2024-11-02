@@ -110,7 +110,7 @@ export default function Home() {
       </div>
 
       {/* Container das miniaturas, ao lado direito */}
-      <div className="w-[150px] h-[50vh] overflow-y-auto ml-4 flex flex-col items-center">
+      <div className="w-[180px] h-[80vh] overflow-y-auto ml-4 flex flex-col items-center">
         {videos.map((video: Video, index) => (
           <button key={index} className="w-full mb-1" onClick={() => configVideo(index)}>
             <h2>{video.description}</h2>
